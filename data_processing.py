@@ -1,3 +1,5 @@
+import pandas as pd
+
 def clean_data(data):
     cleaned = []
 
@@ -10,4 +12,10 @@ def clean_data(data):
                 new_row[key] = str(value).strip().lower()
         cleaned.append(new_row)
 
-    return cleaned
+    # ✅ Convert list → DataFrame (THIS WAS MISSING)
+    df = pd.DataFrame(cleaned)
+
+    # Optional: normalize column names
+    df.columns = [c.lower().strip() for c in df.columns]
+
+    return df
