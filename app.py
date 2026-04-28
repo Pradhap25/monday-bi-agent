@@ -8,14 +8,18 @@ st.set_page_config(page_title="Monday BI Agent", page_icon="📊")
 st.title("📊 Monday.com BI Agent")
 st.caption("Ask founder-level business questions across Deals & Work Orders")
 
-# 👉 Replace with your actual board IDs
 DEALS_BOARD_ID = 5028115615
-WORK_ORDERS_BOARD_ID = 5028115615   # (for testing, use same ID)
+WORK_ORDERS_BOARD_ID = 5028115615  # <-- change this
 
-query = st.text_input("Your Question:")
+query = st.text_input("Ask your business question:")
 
 if not query:
-    st.info("Example questions:\n- How is our pipeline?\n- Energy sector performance this quarter\n- Which deals are at risk?")
+    st.info("""
+    Example questions:
+    • How is our pipeline this quarter?
+    • Energy sector performance
+    • Which deals are at risk?
+    """)
 else:
     try:
         with st.spinner("Fetching data from Monday.com..."):
@@ -26,8 +30,16 @@ else:
             deals_df = clean_data(deals_raw)
             work_df = clean_data(work_raw)
 
+        if deals_df.empty and work_df.empty:
+            st.warning("No data found. Check board IDs or API access.")
+            st.stop()
+
         with st.spinner("Analyzing..."):
-            answer = ask_llm(query, deals_df, work_df)
+            answer = ask_llm(
+                query,
+                deals_df.head(10).to_string(),
+                work_df.head(10).to_string()
+            )
 
         st.success("Answer:")
         st.write(answer)
