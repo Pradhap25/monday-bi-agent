@@ -1,12 +1,15 @@
 import requests
+import streamlit as st
 
-API_KEY = ""   # 🔴 put your real key here
+# 🔐 Read API key from Streamlit Secrets
+API_KEY = st.secrets["MONDAY_API_KEY"]
+
 URL = "https://api.monday.com/v2"
 
 HEADERS = {
     "Authorization": API_KEY,
     "Content-Type": "application/json",
-    "API-Version": "2023-10"   # ensures items_page works
+    "API-Version": "2023-10"
 }
 
 def fetch_board_data(board_id: int):
@@ -34,13 +37,13 @@ def fetch_board_data(board_id: int):
 
     resp = requests.post(URL, json={"query": query}, headers=HEADERS, timeout=30)
 
-    # --- Always parse safely ---
+    # --- Safe JSON parsing ---
     try:
         data = resp.json()
     except Exception:
         raise Exception(f"Non-JSON response (status {resp.status_code}): {resp.text[:300]}")
 
-    # --- Show real API errors instead of KeyError ---
+    # --- API errors ---
     if "errors" in data:
         raise Exception(f"Monday API Error: {data['errors']}")
 
@@ -50,7 +53,6 @@ def fetch_board_data(board_id: int):
     board = data["data"]["boards"][0]
 
     if not board.get("items_page") or not board["items_page"].get("items"):
-        # No items is not a crash—just return empty list
         return []
 
     items = board["items_page"]["items"]
