@@ -1,10 +1,12 @@
-
-
+import streamlit as st
 from openai import OpenAI
+import os
 
-# 🔐 Groq API key (gsk_...)
+# 🔐 Read API key safely (Cloud + Local)
+GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY"))
+
 client = OpenAI(
-    api_key="",
+    api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1"
 )
 
@@ -58,7 +60,7 @@ Always:
 """
 
     response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",   # ✅ UPDATED MODEL
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "system", "content": context},
             {"role": "user", "content": query}
